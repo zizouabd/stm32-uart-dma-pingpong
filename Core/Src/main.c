@@ -31,9 +31,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define PACKET_HEAD       0xAA  /* Start-of-frame marker[cite: 1] */
-#define PACKET_STOP       0x00  /* End-of-frame marker[cite: 1] */
-#define MAX_PAYLOAD_LEN   0x20  /* Maximum 32 bytes[cite: 1] */
+#define PACKET_HEAD       0xAA  /* Start-of-frame marker */
+#define PACKET_STOP       0x00  /* End-of-frame marker*/
+#define MAX_PAYLOAD_LEN   0x20  /* Maximum 32 bytes */
 #define RX_BUFFER_SIZE    64
 #define TX_BUFFER_SIZE    64
 /* USER CODE END PD */
@@ -70,32 +70,28 @@ static void MX_USART1_UART_Init(void);
 void Send_UART_Packet(uint8_t cmd, uint8_t len, uint8_t *payload) {
     if (len > MAX_PAYLOAD_LEN) return;
 
-    tx_buffer[0] = PACKET_HEAD; /* Ajout du HEAD[cite: 1] */
-    tx_buffer[1] = cmd;         /* Ajout de la commande[cite: 1] */
-    tx_buffer[2] = len;         /* Ajout de la longueur (LEN)[cite: 1] */
+    tx_buffer[0] = PACKET_HEAD; 
+    tx_buffer[1] = cmd;        
+    tx_buffer[2] = len;        
 
-    uint8_t chk = cmd ^ len;    /* Initialisation du checksum avec CMD et LEN[cite: 2] */
-
-    /* Copie du payload et calcul du XOR checksum[cite: 2] */
+    uint8_t chk = cmd ^ len; 
+ 
     for (int i = 0; i < len; i++) {
         tx_buffer[3 + i] = payload[i];
         chk ^= payload[i];
     }
 
-    tx_buffer[3 + len] = chk;          /* Ajout du checksum[cite: 1] */
-    tx_buffer[4 + len] = PACKET_STOP;  /* Ajout du STOP[cite: 1] */
+    tx_buffer[3 + len] = chk; 
+    tx_buffer[4 + len] = PACKET_STOP;  
 
     /* Transmission non bloquante pour minimiser l'usage CPU */
     HAL_UART_Transmit_DMA(&huart1, tx_buffer, len + 5);
 }
 
-/**
- * @brief Parse les données entrantes et renvoie un Ping-Pong.
- */
+
 void Process_Incoming_Data(uint8_t *data, uint16_t size) {
     int start_idx = -1;
-
-    /* Le récepteur cherche le marqueur 0xAA[cite: 3] */
+ 
     for (int i = 0; i < size; i++) {
         if (data[i] == PACKET_HEAD) {
             start_idx = i;
@@ -109,16 +105,13 @@ void Process_Incoming_Data(uint8_t *data, uint16_t size) {
     uint8_t cmd = data[start_idx + 1];
     uint8_t len = data[start_idx + 2];
 
-    /* Rejeter immédiatement le paquet si LEN est supérieur à 0x20[cite: 3] */
     if (len > MAX_PAYLOAD_LEN) return;
 
     int expected_total_size = len + 5;
     if ((size - start_idx) < expected_total_size) return;
 
-    /* Le paquet est accepté seulement si le STOP vaut 0x00[cite: 3] */
     if (data[start_idx + expected_total_size - 1] != PACKET_STOP) return;
 
-    /* Le récepteur doit calculer le checksum à partir des champs reçus[cite: 2] */
     uint8_t calculated_chk = cmd ^ len;
     for (int i = 0; i < len; i++) {
         calculated_chk ^= data[start_idx + 3 + i];
@@ -126,10 +119,8 @@ void Process_Incoming_Data(uint8_t *data, uint16_t size) {
 
     uint8_t received_chk = data[start_idx + 3 + len];
 
-    /* Rejeter le paquet si le résultat ne correspond pas à l'octet CHK reçu[cite: 2] */
     if (calculated_chk != received_chk) return;
 
-    /* Opération Ping Pong : On renvoie le paquet en modifiant légèrement la commande */
     Send_UART_Packet(cmd | 0x80, len, &data[start_idx + 3]);
 }
 /* USER CODE END 0 */
@@ -300,10 +291,9 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
     if (huart->Instance == USART1) {
-        /* Passer les octets reçus au parseur de paquets[cite: 3] */
+        
         Process_Incoming_Data(rx_buffer, Size);
 
-        /* Redémarrer immédiatement la réception[cite: 3] */
         HAL_UARTEx_ReceiveToIdle_DMA(&huart1, rx_buffer, RX_BUFFER_SIZE);
     }
 /* USER CODE END 4 */
