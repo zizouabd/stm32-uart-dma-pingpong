@@ -1,0 +1,41 @@
+# ==========================================
+# 1. Fichiers de Compilation STM32 (GCC / CubeIDE)
+# ==========================================
+Debug/
+Release/
+build/
+*.elf
+*.bin
+*.hex
+*.map
+*.o
+*.o.d
+*.su
+*.d
+
+# ==========================================
+# 2. Fichiers de Configuration IDE & Workspace
+# ==========================================
+.settings/
+.cache/
+.compile_commands.json
+.vscode/
+*.launch
+
+# ==========================================
+# 3. Fichiers système et Éditeurs
+# ==========================================
+.DS_Store
+Thumbs.db
+*.swp
+
+# ==========================================
+# 4. Fichiers de tests locaux & Environnements virtuels
+# ==========================================
+# Exclut les scripts Python de test ou le dossier de test
+test_script.py
+tests/
+__pycache__/
+*.pyc
+.venv/
+env/
