@@ -6,16 +6,16 @@ Ce projet implémente un pilote de communication série asynchrone hautement eff
 
 ## 📋 Spécifications Générales
 
-* **Microcontrôleur :** STM32 Black Pill (ARM Cortex-M4)
+* **Microcontrôleur :** STM32 Black Pill
 * **Peripherique :** USART1 
-* **Paramètres UART :** 115200 Bauds, 8 bits de données, Sans parité, 1 bit de Stop (115200 8N1)[cite: 1]
-* **Target CPU Usage :** Minimisé au maximum via DMA hardware[cite: 3]
+* **Paramètres UART :** 115200 Bauds, 8 bits de données, Sans parité, 1 bit de Stop (115200 8N1)
+* **Target CPU Usage :** Minimisé au maximum via DMA hardware
 
 ---
 
 ## 📐 Spécification du Protocole de Trame
 
-Chaque paquet transmis ou reçu respecte la structure binaire suivante[cite: 1] :
+Chaque paquet transmis ou reçu respecte la structure binaire suivante :
 
 | Champ | Taille | Valeur | Description |
 | :--- | :--- | :--- | :--- |
